@@ -12,9 +12,6 @@ from utils import extract_files, load_data, find_best_matches, save_to_json, sav
 zip_file = "geojson_data.zip"
 geojson_files = ["nolli_points_open.geojson", "osm_node_way_relation.geojson"]
 
-#nolli = "nolli_points_open.geojson"
-#osm = "osm_node_way_relation.geojson"
-
 ###############################
 # 2) Extract GeoJSON files
 ###############################
@@ -81,16 +78,16 @@ osm_data = load_data("osm_node_way_relation.geojson")
 #     # Extract the names
 #     # Extract the geometry
 #     # Store them inside nolli_relevant_data
-features = ("Nolli Name", "Unravelled Name", "Modern Name")
+nolli_features = ("Nolli Name", "Unravelled Name", "Modern Name")
 
 Nolli_Number = 0
 for feature in nolli_features:
-    Nolli_Name = feature.get("Nolli Name", Nolli_Number, default=None)
-    Unraveled_Name = feature.get("Unravelled Name", Nolli_Number, default=None)
-    Modern_Name = feature.get("Modern Name", Nolli_Number, default=None)
-    geometry = feature.get("geometry", Nolli_Number, default=None)
+    Nolli_Name = nolli_features.get("Nolli Name", Nolli_Number, default=None)
+    Unraveled_Name = nolli_features.get("Unravelled Name", Nolli_Number, default=None)
+    Modern_Name = nolli_features.get("Modern Name", Nolli_Number, default=None)
+    geometry = nolli_features.get("geometry", Nolli_Number, default=None)
 
-    feature.update_dict(nolli_relevant_data)
+    nolli_features.update_dict(nolli_relevant_data)
 
     Nolli_Number = Nolli_Number + 1
 
