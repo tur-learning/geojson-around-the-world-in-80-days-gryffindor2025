@@ -1,100 +1,93 @@
 # Import necessary functions from utils.py
-from utils import extract_files, load_data, find_best_matches, save_to_json, save_to_geojson, normalize_text
+from utils import extract_files, load_data, find_best_matches, save_to_json, save_to_geojson, print_dict
 
-###############################
+# --------------------------------------------------------------------------------------------------------------------------------
+
 # 1) Define the input files
-###############################
-# HINT: The data is stored inside a ZIP archive.
-# You need to extract two GeoJSON files:
-# - `nolli_points_open.geojson`: Contains historical Nolli map features.
-# - `osm_node_way_relation.geojson`: Contains OpenStreetMap (OSM) features.
 
 zip_file = "geojson_data.zip"
 geojson_files = ["nolli_points_open.geojson", "osm_node_way_relation.geojson"]
 
 ###############################
 # 2) Extract GeoJSON files
-###############################
-# HINT: Use the function `extract_files()` to extract the required files.
-# This function returns a list of extracted file paths.
 
-# extracted_files = ...
-# nolli_file, osm_file = extracted_files  # Unpack the extracted file paths
+# Don't need these functioning because already completed these functions (one time uses)
+#extracted_files = extract_files(zip_file, geojson_files)
+#nolli_file, osm_file = extracted_files  # Unpack the extracted file paths
 
-nolli = extract_files("geojson_data.zip", "nolli_points_open.geojson")
-osm = extract_files("geojson_data.zip", "osm_node_way_relation.geojson")
 
-###############################
+## following the utils import the changes 
+
+# --------------------------------------------------------------------------------------------------------------------------------
+
 # 3) Load the GeoJSON data
-###############################
-# HINT: Use the function `load_data()` to read the JSON content of each extracted file.
-# You should end up with two dictionaries:
-# - `nolli_data`: Contains the historical map data.
-# - `osm_data`: Contains modern OpenStreetMap features.
-
-extracted_files = extract_files(zip_file, geojson_files)
-
-# nolli_data = ...
-# osm_data = ...
 
 nolli_data = load_data("nolli_points_open.geojson")
 osm_data = load_data("osm_node_way_relation.geojson")
 
-#nolli_data("features") = nolli_features
+# --------------------------------------------------------------------------------------------------------------------------------
 
-###############################
 # 4) Extract relevant info from Nolli data
-###############################
-# HINT: Each feature in `nolli_data["features"]` represents a historical landmark or road.
-# You need to:
-# 1️⃣ Extract the unique "Nolli Number" for each feature (use it as the dictionary key).
-# 2️⃣ Extract the possible names for each feature from:
-#    - "Nolli Name"
-#    - "Unravelled Name"
-#    - "Modern Name"
-# 3️⃣ Store the feature's coordinates (geometry).
-#
-# Expected structure:
-# {
-#   "1319": {
-#       "nolli_names": [
-#           "Mole Adriana, or Castel S. Angelo",
-#           "Mole Adriana, or Castel Sant'Angelo",
-#           "Castel Sant'Angelo"
-#       ],
-#       "nolli_coords": {
-#           "type": "Point",
-#           "coordinates": [12.46670095, 41.90329709]
-#       }
-#   }
-# }
 
-# nolli_relevant_data = {}
-# nolli_features = nolli_data["features"]
+# creating a value holding all information from nolli_data and osm_data
+features = nolli_data.get("features", None)
 
-# for feature in nolli_features:
-#     properties = feature.get("properties", {})
-#     # Extract the Nolli Number as the key
-#     # Extract the names
-#     # Extract the geometry
-#     # Store them inside nolli_relevant_data
-nolli_features = ("Nolli Name", "Unravelled Name", "Modern Name")
+# creating empty master dictionary for all places from nolli_data
+nolli_simplified = {}
+nolli_Numbers_dict = {}
 
-Nolli_Number = 0
-for feature in nolli_features:
-    Nolli_Name = nolli_features.get("Nolli Name", Nolli_Number, default=None)
-    Unraveled_Name = nolli_features.get("Unravelled Name", Nolli_Number, default=None)
-    Modern_Name = nolli_features.get("Modern Name", Nolli_Number, default=None)
-    geometry = nolli_features.get("geometry", Nolli_Number, default=None)
+numberCounter = 0
 
-    nolli_features.update_dict(nolli_relevant_data)
+# reading every entry from nolli_data and storing simplified data
+for element in features:
+    # extracting data from nolli_data
+    properties = element.get("properties", None)
+    geometry = element.get("geometry", None)
 
-    Nolli_Number = Nolli_Number + 1
+    # Creating varable holding nolli number
+    nolliNumber = properties.get("Nolli Number", None)
 
+    # Creating list of possible names for the object
+    possibleNames = []
+    possibleNames.append(properties.get("Nolli Name", None))
+    possibleNames.append(properties.get("Unravelled Name", None))
+    possibleNames.append(properties.get("Modern Name"))
 
+    # for if there there is a missing value
+    if geometry is not None:
+        nolliType = geometry.get("type", None)
+        nolliCoords = geometry.get("coordinates", None)
+    else:
+        nolliType = None
+        nolliCoords = None
 
+    # creating dictionary for single place from nolli_data
+    element_dict = {
+        nolliNumber : {
+            "Possible Names": possibleNames,
+            "Geometry": {
+                "Type": nolliType,
+                "Coordinates": nolliCoords
+            }
+        }
+    }
 
-###############################
+    # Creating a dictionary for nolli numbers for later use
+    nolliNumber_dict = {
+        numberCounter: nolliNumber
+    }
+
+    # adding element_dict to master dictionary for all places from nolli_data
+    for key, value in element_dict.items():
+        nolli_simplified[key] = value
+
+    # adding nolliNumber_dict to made dictionary for nolliNumbers
+    for key1, value1 in nolliNumber_dict.items():
+        nolli_Numbers_dict[key1] = value1
+
+    numberCounter = numberCounter + 1
+# --------------------------------------------------------------------------------------------------------------------------------
+
 # 5) Fuzzy match with OSM data
 ###############################
 # HINT: The `osm_data["features"]` list contains modern landmarks and roads.
@@ -105,6 +98,37 @@ for feature in nolli_features:
 # ✅ Use fuzzy matching to find the closest match.
 # ✅ Store the best match in the `nolli_relevant_data` dictionary.
 #
+
+# creating dictionary to hold matched names
+nolli_relevent_data = {}
+
+modernFeatures = osm_data.get("features", None)
+
+nolliCounter = 0
+matchCounter = 0
+
+for el in modernFeatures:
+    modernProperties = el.get("properties", None)
+
+    for name in nolli_simplified:
+        nolliCounter = nolliCounter + 1
+        starterDict = name.get(nolli_Numbers_dict.get(nolliCounter, None), None)
+        listofNames = starterDict.get("Possible Names", None)
+        
+        if listofNames != None:
+            goodMatches = find_best_matches(listofNames, modernFeatures)
+
+            if goodMatches != (None, 0):
+                nolli_relevent_data[matchCounter] = (goodMatches)
+                matchCounter = matchCounter + 1
+            else:
+                pass
+        else:
+            pass
+
+print_dict(nolli_relevent_data)
+print(matchCounter)
+
 # Use the function `find_best_matches()`:
 # - Pass the list of names from Nolli.
 # - Search in the OSM dataset using `key_field="name"`.
