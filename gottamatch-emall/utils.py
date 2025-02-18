@@ -2,6 +2,7 @@ import json
 import math
 import zipfile
 import os
+import re
 from thefuzz import fuzz, process
 
 
@@ -253,3 +254,8 @@ def get_nearest(iterable, objects):
     """
     index = min(enumerate(iterable), key=lambda x: x[1])[0]
     return objects[index]
+
+def normalize_text(text):
+    return re.sub(r"[^a-zA-Z0-9 ]", "", text).lower()
+ 
+#normalized_name = normalize_text(feature_name)

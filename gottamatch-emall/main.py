@@ -1,5 +1,5 @@
 # Import necessary functions from utils.py
-from utils import extract_files, load_data, find_best_matches, save_to_json, save_to_geojson
+from utils import extract_files, load_data, find_best_matches, save_to_json, save_to_geojson, normalize_text
 
 ###############################
 # 1) Define the input files
@@ -12,6 +12,11 @@ from utils import extract_files, load_data, find_best_matches, save_to_json, sav
 zip_file = "geojson_data.zip"
 geojson_files = ["nolli_points_open.geojson", "osm_node_way_relation.geojson"]
 
+nolli = "nolli_points_open.geojson"
+osm = "osm_node_way_relation.geojson"
+
+
+
 ###############################
 # 2) Extract GeoJSON files
 ###############################
@@ -20,6 +25,9 @@ geojson_files = ["nolli_points_open.geojson", "osm_node_way_relation.geojson"]
 
 # extracted_files = ...
 # nolli_file, osm_file = extracted_files  # Unpack the extracted file paths
+
+nolli = extract_files("geojson_data.zip", "nolli_points_open.geojson")
+osm = extract_files("geojson_data.zip", "osm_node_way_relation.geojson")
 
 ###############################
 # 3) Load the GeoJSON data
@@ -31,6 +39,11 @@ geojson_files = ["nolli_points_open.geojson", "osm_node_way_relation.geojson"]
 
 # nolli_data = ...
 # osm_data = ...
+
+nolli_data = load_data(nolli)
+osm_data = load_data(osm)
+
+#nolli_data("features") = nolli_features
 
 ###############################
 # 4) Extract relevant info from Nolli data
@@ -68,6 +81,21 @@ geojson_files = ["nolli_points_open.geojson", "osm_node_way_relation.geojson"]
 #     # Extract the names
 #     # Extract the geometry
 #     # Store them inside nolli_relevant_data
+features = ("Nolli Name", "Unravelled Name", "Modern Name")
+
+Nolli_Number = 0
+for feature in nolli_features:
+    Nolli_Name = feature.get("Nolli Name", Nolli_Number, default=None)
+    Unraveled_Name = feature.get("Unravelled Name", Nolli_Number, default=None)
+    Modern_Name = feature.get("Modern Name", Nolli_Number, default=None)
+    geometry = feature.get("geometry", Nolli_Number, default=None)
+
+    feature.update_dict(nolli_relevant_data)
+
+    Nolli_Number = Nolli_Number + 1
+
+
+
 
 ###############################
 # 5) Fuzzy match with OSM data
@@ -85,6 +113,36 @@ geojson_files = ["nolli_points_open.geojson", "osm_node_way_relation.geojson"]
 # - Search in the OSM dataset using `key_field="name"`.
 # - Set `threshold=85` (minimum similarity score).
 # - Use `scorer="partial_ratio"` for better matching.
+from thefuzz import fuzz, process
+ 
+# Test cases
+search_names = ["St. Michael's Cathedral", "Washington Square Park", "Central Plaza"]
+geojson_features = [
+    {
+      "properties": {"name": "Saint Michael Cathedral"}, 
+     "geometry": {"coordinates": [10.0, 20.0]}
+    },
+    {
+      "properties": {"name": "Washington Sq. Park"}, 
+     "geometry": {"coordinates": [15.0, 25.0]}
+    },
+    {"properties": {"name": "Plaza Central"}, 
+     "geometry": {"coordinates": [30.0, 40.0]}
+    },
+]
+ 
+# Test different scorers
+scorers = ["ratio", "partial_ratio", "token_sort_ratio", "token_set_ratio"]
+ 
+for scorer in scorers:
+    print(f"\n### Testing with {scorer} ###")
+    
+    for feature in geojson_features:
+        feature_name = feature["properties"]["name"]
+        best_match, score = process.extractOne(feature_name, search_names, 
+                                               scorer=getattr(fuzz, scorer))
+        
+        print(f"Match for '{feature_name}': '{best_match}' → Score: {score}")
 
 print(f"Searching best match for Nolli names:")
 
