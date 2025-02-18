@@ -15,9 +15,6 @@ geojson_files = ["nolli_points_open.geojson", "osm_node_way_relation.geojson"]
 #extracted_files = extract_files(zip_file, geojson_files)
 #nolli_file, osm_file = extracted_files  # Unpack the extracted file paths
 
-
-## following the utils import the changes 
-
 # --------------------------------------------------------------------------------------------------------------------------------
 
 # 3) Load the GeoJSON data
