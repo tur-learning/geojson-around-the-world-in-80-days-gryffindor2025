@@ -12,10 +12,8 @@ from utils import extract_files, load_data, find_best_matches, save_to_json, sav
 zip_file = "geojson_data.zip"
 geojson_files = ["nolli_points_open.geojson", "osm_node_way_relation.geojson"]
 
-nolli = "nolli_points_open.geojson"
-osm = "osm_node_way_relation.geojson"
-
-
+#nolli = "nolli_points_open.geojson"
+#osm = "osm_node_way_relation.geojson"
 
 ###############################
 # 2) Extract GeoJSON files
@@ -37,11 +35,13 @@ osm = extract_files("geojson_data.zip", "osm_node_way_relation.geojson")
 # - `nolli_data`: Contains the historical map data.
 # - `osm_data`: Contains modern OpenStreetMap features.
 
+extracted_files = extract_files(zip_file, geojson_files)
+
 # nolli_data = ...
 # osm_data = ...
 
-nolli_data = load_data(nolli)
-osm_data = load_data(osm)
+nolli_data = load_data("nolli_points_open.geojson")
+osm_data = load_data("osm_node_way_relation.geojson")
 
 #nolli_data("features") = nolli_features
 
