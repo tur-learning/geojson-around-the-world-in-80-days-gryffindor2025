@@ -90,7 +90,7 @@ def print_dict(data):
     print(json.dumps(data, indent=2, ensure_ascii=False))
 
 
-def find_best_matches(search_names, features, key_field="name", threshold=80, scorer="ratio"):
+def find_best_matches(search_names, features, key_field="name", threshold=85, scorer="ratio"):
     """
     Performs a fuzzy search to find the best match between a set of search names and a given feature set.
 
