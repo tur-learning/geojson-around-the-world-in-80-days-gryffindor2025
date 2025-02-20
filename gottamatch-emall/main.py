@@ -74,20 +74,32 @@ for element in features:
 
 # 5) Fuzzy match with OSM data
 
+# creating dictionary for matches
 nolli_relevant_data = {}
 
-matchCounter = 1
+# creating counter for # of matches
+matchCounter = 0
 
+# stating he have begun matching
 print(f"Searching best match for Nolli names:")
 
+# looking through each elemnt of nolli_simplified
 for name in nolli_simplified:
+    # gettings names to check against in osm_data
     listofNames = nolli_simplified[name].get("Possible Names", None)
+
+    # getting coordinates of elements of nolli_simplified
     nolli_coords = nolli_simplified[name].get("Geometry", None)
+
+    # finding matches
     match = find_best_matches(listofNames, osm_data.get("features", None))
 
+    # creating open dictionary to add matches to master dictionary
     openDict = {}
 
+    # checking to make sure match isn't null
     if match != (None, 0):
+        # creating element for master dictionary
         openDict = {
             matchCounter : {
                 "nolli_names" : listofNames,
@@ -95,27 +107,27 @@ for name in nolli_simplified:
                 "match" : match
             }
         }
-    
+
+        # adding element dictionary into master dictionary
         for keys, values in openDict.items():
             nolli_relevant_data[keys] = values
 
+        # stating another match was made
         matchCounter = matchCounter + 1
+    # if match is empty, don't bother
     else:
         pass
 
+# stating how many matches have been made
 print(f"MATCHED {matchCounter} NOLLI ENTRIES")
 
 # --------------------------------------------------------------------------------------------------------------------------------
 
 # 6) Save results as JSON and GeoJSON
-###############################
-# HINT: Once all matches are found, save the results in two formats:
-# ✅ `matched_nolli_features.json` → Standard JSON format for analysis.
-# ✅ `matched_nolli_features.geojson` → A structured GeoJSON file for visualization.
-#
-# Use:
+
 # Already used these. Don't need to use again
-# save_to_json(nolli_relevant_data, "matched_nolli_features.json")
+
+save_to_json(nolli_relevant_data, "matched_nolli_features.json")
 save_to_geojson(nolli_relevant_data, "matched_nolli_features.geojson")
 
 print("Matching complete. Results saved.")
