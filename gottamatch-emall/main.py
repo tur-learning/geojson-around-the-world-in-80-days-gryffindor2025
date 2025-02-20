@@ -34,9 +34,6 @@ features = nolli_data.get("features", None)
 
 # creating empty master dictionary for all places from nolli_data
 nolli_simplified = {}
-nolli_Numbers_dict = {}
-
-numberCounter = 0
 
 # reading every entry from nolli_data and storing simplified data
 for element in features:
@@ -72,67 +69,34 @@ for element in features:
         }
     }
 
-    # Creating a dictionary for nolli numbers for later use
-    nolliNumber_dict = {
-        numberCounter: nolliNumber
-    }
-
     # adding element_dict to master dictionary for all places from nolli_data
     for key, value in element_dict.items():
         nolli_simplified[key] = value
 
-    # adding nolliNumber_dict to made dictionary for nolliNumbers
-    for key1, value1 in nolliNumber_dict.items():
-        nolli_Numbers_dict[key1] = value1
-
-    numberCounter = numberCounter + 1
 # --------------------------------------------------------------------------------------------------------------------------------
 
 # 5) Fuzzy match with OSM data
-###############################
-# HINT: The `osm_data["features"]` list contains modern landmarks and roads.
-# Each feature has a "name" field in its properties.
-#
-# For each Nolli entry:
-# ✅ Compare its names with the "name" field of OSM features.
-# ✅ Use fuzzy matching to find the closest match.
-# ✅ Store the best match in the `nolli_relevant_data` dictionary.
-#
 
-# creating dictionary to hold matched names
-nolli_relevent_data = {}
+nolli_relevant_data = {}
 
 matchCounter = 0
 
-for name in nolli_simplified:
-    listofNames = nolli_simplified[name].get("Possible Names", None)
-    find_best_matches(listofNames, osm_data.get("features", None))
-
-
-print_dict(nolli_relevent_data)
-print(matchCounter)
-
-# Use the function `find_best_matches()`:
-# - Pass the list of names from Nolli.
-# - Search in the OSM dataset using `key_field="name"`.
-# - Set `threshold=85` (minimum similarity score).
-# - Use `scorer="partial_ratio"` for better matching.
-
 print(f"Searching best match for Nolli names:")
 
-# counter = 0  # To track the number of successful matches
-# for nolli_id, values in nolli_relevant_data.items():
-#     print(f"\t{nolli_id}\t{values['nolli_names'][0]}")  # Print first name for reference
-#
-#     # Get the best match from OSM data
-#     # match, j = find_best_matches(...)
-#
-#     # counter += j  # Update match counter
-#     # nolli_relevant_data[nolli_id]["match"] = match  # Store the match
+for name in nolli_simplified:
+    listofNames = nolli_simplified[name].get("Possible Names", None)
+    match = find_best_matches(listofNames, osm_data.get("features", None))
 
-# print(f"MATCHED {counter} NOLLI ENTRIES")
+    if match != (None, 0):
+        nolli_relevant_data[matchCounter] = match
+        matchCounter = matchCounter + 1
+    else:
+        pass
 
-###############################
+print(f"MATCHED {matchCounter} NOLLI ENTRIES")
+
+# --------------------------------------------------------------------------------------------------------------------------------
+
 # 6) Save results as JSON and GeoJSON
 ###############################
 # HINT: Once all matches are found, save the results in two formats:
@@ -140,11 +104,8 @@ print(f"Searching best match for Nolli names:")
 # ✅ `matched_nolli_features.geojson` → A structured GeoJSON file for visualization.
 #
 # Use:
-# - `save_to_json(nolli_relevant_data, "matched_nolli_features.json")`
-# - `save_to_geojson(nolli_relevant_data, "matched_nolli_features.geojson")`
-
-# save_to_json(...)
-# save_to_geojson(...)
+save_to_json(nolli_relevant_data, "matched_nolli_features.json")
+save_to_geojson(nolli_relevant_data, "matched_nolli_features.geojson")
 
 print("Matching complete. Results saved.")
 
