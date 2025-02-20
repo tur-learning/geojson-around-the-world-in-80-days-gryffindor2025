@@ -185,19 +185,19 @@ def save_to_geojson(data, output_file):
         # If there is a match, add the corresponding OSM point
         if "match" in values and values["match"] is not None:
             match_data = values["match"]
-            if "osm_coords" in match_data[-1] and match_data[-1]["osm_coords"]:
+            if "osm_coords" in match_data[-2][-1] and match_data[-2][-1]["osm_coords"]:
                 osm_point = {
                     "type": "Feature",
                     "properties": {
                         "Nolli_ID": nolli_id,
                         "Nolli_Name": values["nolli_names"][0],
                         "Matched_Name": match_data[0],  # Matched OSM name
-                        "Match_Score": match_data[2],  # Similarity score
+                        "Match_Score": match_data[0][2],  # Similarity score
                         "Marker_Type": "OSM",  # Marker identifier for styling
                     },
                     "geometry": {
                         "type": "Point",
-                        "coordinates": match_data[-1]["osm_coords"]
+                        "coordinates": match_data[-2][-1]["osm_coords"]
                     }
                 }
                 features.append(osm_point)
