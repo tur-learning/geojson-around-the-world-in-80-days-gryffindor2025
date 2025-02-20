@@ -61,7 +61,7 @@ for element in features:
             "Possible Names": possibleNames,
             "Geometry": {
                 "Type": nolliType,
-                "Coordinates": nolliCoords
+                "coordinates": nolliCoords
             }
         }
     }
@@ -76,16 +76,29 @@ for element in features:
 
 nolli_relevant_data = {}
 
-matchCounter = 0
+matchCounter = 1
 
 print(f"Searching best match for Nolli names:")
 
 for name in nolli_simplified:
     listofNames = nolli_simplified[name].get("Possible Names", None)
+    nolli_coords = nolli_simplified[name].get("Geometry", None)
     match = find_best_matches(listofNames, osm_data.get("features", None))
 
+    openDict = {}
+
     if match != (None, 0):
-        nolli_relevant_data[matchCounter] = match
+        openDict = {
+            matchCounter : {
+                "nolli_names" : listofNames,
+                "nolli_coords" : nolli_coords,
+                "match" : match
+            }
+        }
+    
+        for keys, values in openDict.items():
+            nolli_relevant_data[keys] = values
+
         matchCounter = matchCounter + 1
     else:
         pass
@@ -101,7 +114,8 @@ print(f"MATCHED {matchCounter} NOLLI ENTRIES")
 # ✅ `matched_nolli_features.geojson` → A structured GeoJSON file for visualization.
 #
 # Use:
-save_to_json(nolli_relevant_data, "matched_nolli_features.json")
+# Already used these. Don't need to use again
+# save_to_json(nolli_relevant_data, "matched_nolli_features.json")
 save_to_geojson(nolli_relevant_data, "matched_nolli_features.geojson")
 
 print("Matching complete. Results saved.")
