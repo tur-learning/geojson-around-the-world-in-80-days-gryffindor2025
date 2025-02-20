@@ -125,11 +125,9 @@ for element in features:
 
 # 6) Save results as JSON and GeoJSON
 
-# Already used these. Don't need to use again
-# save_to_json(nolli_relevant_data, "matched_nolli_features.json")
-# save_to_geojson(nolli_relevant_data, "matched_nolli_features.geojson")
-
 print("Matching complete. Results saved.")
+
+# --------------------------------------------------------------------------------------------------------------------------------
 
 # 7) Visualization
 
@@ -138,3 +136,5 @@ print("Matching complete. Results saved.")
 #
 # 📌 Observe if the matched features align correctly.
 # 📝 Take a screenshot and submit it as proof of completion!
+
+# Complete Project !!!!!!!
