@@ -127,7 +127,7 @@ print(f"MATCHED {matchCounter} NOLLI ENTRIES")
 
 # Already used these. Don't need to use again
 
-save_to_json(nolli_relevant_data, "matched_nolli_features.json")
+# save_to_json(nolli_relevant_data, "matched_nolli_features.json")
 save_to_geojson(nolli_relevant_data, "matched_nolli_features.geojson")
 
 print("Matching complete. Results saved.")
