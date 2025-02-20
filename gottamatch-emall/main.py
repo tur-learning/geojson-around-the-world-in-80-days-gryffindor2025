@@ -102,29 +102,12 @@ for element in features:
 # creating dictionary to hold matched names
 nolli_relevent_data = {}
 
-modernFeatures = osm_data.get("features", None)
-
-nolliCounter = 0
 matchCounter = 0
 
-for el in modernFeatures:
-    modernProperties = el.get("properties", None)
+for name in nolli_simplified:
+    listofNames = nolli_simplified[name].get("Possible Names", None)
+    find_best_matches(listofNames, osm_data.get("features", None))
 
-    for name in nolli_simplified:
-        nolliCounter = nolliCounter + 1
-        starterDict = name.get(nolli_Numbers_dict.get(nolliCounter, None), None)
-        listofNames = starterDict.get("Possible Names", None)
-        
-        if listofNames != None:
-            goodMatches = find_best_matches(listofNames, modernFeatures)
-
-            if goodMatches != (None, 0):
-                nolli_relevent_data[matchCounter] = (goodMatches)
-                matchCounter = matchCounter + 1
-            else:
-                pass
-        else:
-            pass
 
 print_dict(nolli_relevent_data)
 print(matchCounter)

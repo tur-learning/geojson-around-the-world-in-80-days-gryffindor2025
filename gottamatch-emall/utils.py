@@ -2,6 +2,7 @@ import json
 import math
 import zipfile
 import os
+import re
 from thefuzz import fuzz, process
 
 
@@ -89,8 +90,10 @@ def print_dict(data):
     """
     print(json.dumps(data, indent=2, ensure_ascii=False))
 
+def normalize_text(text):
+    return re.sub(r"[^a-zA-Z0-9 ]", "", text).lower()
 
-def find_best_matches(search_names, features, key_field="name", threshold=85, scorer="ratio"):
+def find_best_matches(search_names, features, key_field="name", threshold=85, scorer="partial_ratio"):
     """
     Performs a fuzzy search to find the best match between a set of search names and a given feature set.
 
@@ -108,14 +111,15 @@ def find_best_matches(search_names, features, key_field="name", threshold=85, sc
         search_names.remove("n/a")
 
     # Dynamically resolve the scorer from the `fuzz` module
-    scorer_func = getattr(fuzz, scorer, fuzz.ratio)
+    scorer_func = getattr(fuzz, scorer, fuzz.partial_ratio)
 
     matches = []
     for feature in features:
         properties = feature.get("properties", {})
         if key_field in properties:
-            feature_name = properties[key_field]
-            best_match, score = process.extractOne(feature_name, search_names, scorer=scorer_func)
+            feature_name = properties[key_field]	
+            normalized_name = normalize_text(feature_name)
+            best_match, score = process.extractOne(normalized_name, search_names, scorer=scorer_func)
             if score >= threshold:
                 matches.append((feature_name, best_match, score, {"osm_coords": feature["geometry"]["coordinates"]}))
 
